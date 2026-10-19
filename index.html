@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Quiz Snakes & Ladders - Pro Edition</title>
+    <title>English Quiz Snakes & Ladders - Online</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800;900&family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
         .font-cute { font-family: 'Fredoka One', cursive; letter-spacing: 1px; }
         .font-balsamiq { font-family: 'Balsamiq Sans', cursive; }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(12px);
             border: 5px solid #fff;
             border-radius: 2rem;
@@ -35,100 +35,116 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- === Lobby / Login Screen === -->
+    <!-- 顶部右上角：教师专区按钮 -->
+    <button id="btn-open-teacher" type="button" class="fixed top-4 right-4 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white rounded-full font-bold shadow-lg z-[100] border-2 border-white cursor-pointer font-balsamiq flex items-center gap-2 text-sm">
+        <span>🔒</span> Create Room
+    </button>
+
+    <!-- === 1. 学生登录主界面 (只有 Name, Email, Room Code) === -->
     <div id="login-screen" class="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm p-4">
-        <div class="glass-panel p-6 w-full max-w-lg text-center relative max-h-[95vh] overflow-y-auto">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-md text-center relative max-h-[95vh] overflow-y-auto">
             <h1 class="font-cute text-4xl text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 mb-1">Snakes & Ladders</h1>
-            <h2 class="text-xl text-orange-500 font-balsamiq font-bold mb-4">English Plus 1 (Year 5) Pro Edition</h2>
+            <h2 class="text-lg text-orange-500 font-balsamiq font-bold mb-6">English Plus 1 (Year 5) Edition</h2>
             
-            <form id="login-form" class="space-y-4 text-left font-balsamiq">
+            <form id="student-form" class="space-y-4 text-left font-balsamiq">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Student Name:</label>
-                    <input type="text" id="input-name" required placeholder="e.g. Ali" class="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:outline-none focus:border-purple-500 bg-white text-lg">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">STUDENT NAME:</label>
+                    <input type="text" id="input-student-name" required placeholder="e.g. Ali" class="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:outline-none focus:border-purple-500 bg-white text-lg">
                 </div>
+                
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">MOE DL Email:</label>
-                    <input type="email" id="input-email" required placeholder="example@moe-dl.edu.my" class="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:outline-none focus:border-purple-500 bg-white text-lg">
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">MOE DL EMAIL:</label>
+                    <input type="email" id="input-student-email" required placeholder="example@moe-dl.edu.my" class="w-full px-4 py-3 rounded-xl border-2 border-purple-200 focus:outline-none focus:border-purple-500 bg-white text-lg">
                     <p id="email-error" class="text-red-500 text-xs font-bold mt-1 hidden">⚠️ Email must end with @moe-dl.edu.my</p>
                 </div>
 
-                <!-- Room Options -->
-                <div class="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100 space-y-3">
-                    <div class="flex gap-2">
-                        <button type="button" id="tab-create" class="flex-1 py-2 font-bold rounded-xl bg-purple-600 text-white shadow">Create Room 👑 (Teacher)</button>
-                        <button type="button" id="tab-join" class="flex-1 py-2 font-bold rounded-xl bg-gray-200 text-gray-600">Join Room 🔗 (Student)</button>
-                    </div>
-
-                    <!-- Teacher Area -->
-                    <div id="panel-create" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">Number of Players:</label>
-                            <div class="flex gap-3">
-                                <label class="flex-1 border-2 border-purple-300 rounded-xl p-2 text-center cursor-pointer bg-white">
-                                    <input type="radio" name="max-players" value="3" checked class="accent-purple-600">
-                                    <span class="font-bold text-md text-purple-700 ml-1">3 Players</span>
-                                </label>
-                                <label class="flex-1 border-2 border-purple-300 rounded-xl p-2 text-center cursor-pointer bg-white">
-                                    <input type="radio" name="max-players" value="4" class="accent-purple-600">
-                                    <span class="font-bold text-md text-purple-700 ml-1">4 Players</span>
-                                </label>
-                            </div>
-                        </div>
-                        <button type="button" id="btn-create-code" class="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-cute text-xl rounded-xl shadow btn-3d">
-                            Generate Room Code 🎲
-                        </button>
-                    </div>
-
-                    <!-- Student Area -->
-                    <div id="panel-join" class="hidden space-y-2">
-                        <label class="block text-xs font-bold text-gray-600">Enter 4-Letter Room Code:</label>
-                        <input type="text" id="input-room-code" maxlength="4" placeholder="e.g. A8K2" class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:outline-none focus:border-indigo-500 uppercase text-center font-cute text-2xl tracking-widest bg-white">
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ROOM CODE:</label>
+                    <input type="text" id="input-student-code" required maxlength="4" placeholder="e.g. F5EG" class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:outline-none focus:border-indigo-500 uppercase text-center font-cute text-3xl tracking-widest bg-white">
                 </div>
 
-                <!-- Lobby Waiting Status Box -->
-                <div id="lobby-status-box" class="hidden bg-yellow-50 border-2 border-yellow-200 p-3 rounded-xl text-center">
-                    <div class="text-sm font-bold text-yellow-800">ROOM CODE: <span id="display-room-code" class="font-cute text-2xl text-purple-600 ml-1">----</span></div>
-                    <div id="players-waiting-list" class="flex justify-center gap-2 my-2 flex-wrap"></div>
-                    <div id="lobby-msg" class="text-xs text-yellow-700 font-bold animate-pulse">Waiting for players to join...</div>
-                </div>
-
-                <button type="submit" id="btn-start-game" disabled class="w-full py-4 bg-gray-400 text-white font-cute text-2xl rounded-2xl shadow btn-3d disabled:opacity-50 cursor-not-allowed">
-                    START GAME 🚀
+                <button type="submit" id="btn-join-room" class="w-full py-4 mt-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-cute text-2xl rounded-2xl shadow btn-3d">
+                    JOIN ROOM 🚀
                 </button>
             </form>
+
+            <!-- 学生等待大厅界面 -->
+            <div id="student-waiting-box" class="hidden mt-4 bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl text-center">
+                <div class="text-sm font-bold text-yellow-800">ROOM CODE: <span id="student-display-code" class="font-cute text-2xl text-purple-600 ml-1">----</span></div>
+                <div id="student-players-list" class="flex justify-center gap-2 my-3 flex-wrap"></div>
+                <div class="text-xs text-yellow-700 font-bold animate-pulse">Waiting for teacher to start the game...</div>
+            </div>
         </div>
     </div>
 
-    <!-- === Quiz Modal (含 5 次求助与道具) === -->
-    <div id="quiz-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="glass-panel w-full max-w-xl p-6 text-center relative">
-            <div class="flex justify-between items-center mb-4 border-b-2 pb-2">
-                <h2 class="font-cute text-2xl text-purple-600">📝 Answer the Question!</h2>
-                
-                <!-- 🤝 5次小组求助按钮 -->
-                <button id="btn-ask-teammate" type="button" class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 rounded-full font-bold text-xs flex items-center gap-1 shadow">
-                    🤝 Ask Group (<span id="ask-count">5</span>/5)
+    <!-- === 2. 教师密码验证弹窗 === -->
+    <div id="teacher-pwd-modal" class="fixed inset-0 bg-black/60 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-panel p-6 max-w-sm w-full text-center">
+            <h2 class="font-cute text-2xl mb-2 text-purple-600">Teacher Login 🔒</h2>
+            <p class="text-xs text-gray-500 font-balsamiq mb-4">Enter password to access Create Room</p>
+            <input type="password" id="teacher-pwd-input" placeholder="Enter Password" class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl mb-4 text-center font-balsamiq focus:outline-none focus:border-purple-500">
+            <div class="flex gap-2">
+                <button id="btn-teacher-cancel" type="button" class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300">Cancel</button>
+                <button id="btn-teacher-login" type="button" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === 3. 教师控制台弹窗 (Create Room Console) === -->
+    <div id="teacher-console-modal" class="fixed inset-0 bg-black/70 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="glass-panel p-6 md:p-8 w-full max-w-md text-center relative">
+            <button id="btn-close-console" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">✕</button>
+            <h2 class="font-cute text-3xl text-purple-600 mb-1">Create Room 👑</h2>
+            <p class="text-xs text-gray-500 font-balsamiq mb-4">Set up room for your Google Meet Breakout Room</p>
+
+            <div class="space-y-4 text-left font-balsamiq">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Select Number of Players:</label>
+                    <div class="flex gap-3">
+                        <label class="flex-1 border-2 border-purple-300 rounded-xl p-3 text-center cursor-pointer bg-white has-[:checked]:bg-purple-100 has-[:checked]:border-purple-600">
+                            <input type="radio" name="max-players" value="3" checked class="accent-purple-600">
+                            <span class="font-bold text-md text-purple-700 ml-1">3 Players</span>
+                        </label>
+                        <label class="flex-1 border-2 border-purple-300 rounded-xl p-3 text-center cursor-pointer bg-white has-[:checked]:bg-purple-100 has-[:checked]:border-purple-600">
+                            <input type="radio" name="max-players" value="4" class="accent-purple-600">
+                            <span class="font-bold text-md text-purple-700 ml-1">4 Players</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-generate-code" class="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-cute text-xl rounded-xl shadow btn-3d">
+                    Generate Room Code 🎲
+                </button>
+
+                <!-- 生成 Code 后的展示盒 -->
+                <div id="teacher-code-box" class="hidden bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl text-center space-y-2">
+                    <div class="text-xs font-bold text-yellow-800 uppercase">ROOM CODE</div>
+                    <div id="teacher-display-code" class="font-cute text-4xl text-purple-600 tracking-wider">----</div>
+                    
+                    <!-- 复制 Link 与 Code 给 Google Meet -->
+                    <button type="button" id="btn-copy-link" class="w-full py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-bold text-xs rounded-lg flex items-center justify-center gap-1 border border-purple-300">
+                        📋 Copy Link & Code for Breakout Room
+                    </button>
+
+                    <div id="teacher-players-list" class="flex justify-center gap-2 my-2 flex-wrap"></div>
+                    <div id="teacher-status-msg" class="text-xs text-yellow-700 font-bold animate-pulse">Waiting for players to join...</div>
+                </div>
+
+                <!-- 亮灯启动按钮 (人数齐全后亮起) -->
+                <button type="button" id="btn-start-game" disabled class="w-full py-4 bg-gray-300 text-gray-500 font-cute text-2xl rounded-2xl shadow cursor-not-allowed transition-all">
+                    START GAME 🚀
                 </button>
             </div>
-
-            <!-- 求助提示条 -->
-            <div id="ask-msg-box" class="hidden mb-3 p-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs rounded-xl font-bold animate-bounce">
-                📢 Discuss with your teammates in Google Meet mic!
-            </div>
-
-            <p id="quiz-question" class="text-xl font-balsamiq font-bold text-gray-800 mb-6 bg-purple-50 p-4 rounded-xl border border-purple-200"></p>
-            <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-            <div id="quiz-explanation" class="hidden mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-left text-xs font-balsamiq text-blue-900"></div>
         </div>
     </div>
 
-    <!-- === Firebase 实时交互与道具逻辑 === -->
+    <!-- === Firebase 核心与交互 JS 逻辑 === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyDHAeGz9S33RcsKUwdHplYWI6sWrEvbZGw",
             authDomain: "english-y5-ladder.firebaseapp.com",
@@ -142,152 +158,178 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        
+
         signInAnonymously(auth);
-
-        const TEACHER_EMAIL = "g33003270@moe-dl.edu.my";
-        let askTeammateCount = 5; // 每局 5 次小组求助
-
-        const DOM = {
-            tabCreate: document.getElementById('tab-create'),
-            tabJoin: document.getElementById('tab-join'),
-            panelCreate: document.getElementById('panel-create'),
-            panelJoin: document.getElementById('panel-join'),
-            btnCreateCode: document.getElementById('btn-create-code'),
-            inputRoomCode: document.getElementById('input-room-code'),
-            lobbyStatusBox: document.getElementById('lobby-status-box'),
-            displayRoomCode: document.getElementById('display-room-code'),
-            playersWaitingList: document.getElementById('players-waiting-list'),
-            lobbyMsg: document.getElementById('lobby-msg'),
-            btnStartGame: document.getElementById('btn-start-game'),
-            loginForm: document.getElementById('login-form'),
-            inputName: document.getElementById('input-name'),
-            inputEmail: document.getElementById('input-email'),
-            emailError: document.getElementById('email-error'),
-            btnAskTeammate: document.getElementById('btn-ask-teammate'),
-            askCount: document.getElementById('ask-count'),
-            askMsgBox: document.getElementById('ask-msg-box')
-        };
-
-        // 小组求助点击逻辑
-        DOM.btnAskTeammate.onclick = () => {
-            if (askTeammateCount > 0) {
-                askTeammateCount--;
-                DOM.askCount.innerText = askTeammateCount;
-                DOM.askMsgBox.classList.remove('hidden');
-                if (askTeammateCount === 0) {
-                    DOM.btnAskTeammate.disabled = true;
-                    DOM.btnAskTeammate.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-            }
-        };
 
         let currentRoomCode = "";
         let isHost = false;
 
-        DOM.inputEmail.addEventListener('input', () => {
-            const email = DOM.inputEmail.value.trim().toLowerCase();
-            if (email === TEACHER_EMAIL) {
-                DOM.tabCreate.classList.remove('hidden');
-                DOM.tabCreate.click();
+        const DOM = {
+            btnOpenTeacher: document.getElementById('btn-open-teacher'),
+            teacherPwdModal: document.getElementById('teacher-pwd-modal'),
+            teacherPwdInput: document.getElementById('teacher-pwd-input'),
+            btnTeacherLogin: document.getElementById('btn-teacher-login'),
+            btnTeacherCancel: document.getElementById('btn-teacher-cancel'),
+            teacherConsoleModal: document.getElementById('teacher-console-modal'),
+            btnCloseConsole: document.getElementById('btn-close-console'),
+            btnGenerateCode: document.getElementById('btn-generate-code'),
+            teacherCodeBox: document.getElementById('teacher-code-box'),
+            teacherDisplayCode: document.getElementById('teacher-display-code'),
+            btnCopyLink: document.getElementById('btn-copy-link'),
+            teacherPlayersList: document.getElementById('teacher-players-list'),
+            teacherStatusMsg: document.getElementById('teacher-status-msg'),
+            btnStartGame: document.getElementById('btn-start-game'),
+            studentForm: document.getElementById('student-form'),
+            inputStudentName: document.getElementById('input-student-name'),
+            inputStudentEmail: document.getElementById('input-student-email'),
+            inputStudentCode: document.getElementById('input-student-code'),
+            emailError: document.getElementById('email-error'),
+            btnJoinRoom: document.getElementById('btn-join-room'),
+            studentWaitingBox: document.getElementById('student-waiting-box'),
+            studentDisplayCode: document.getElementById('student-display-code'),
+            studentPlayersList: document.getElementById('student-players-list')
+        };
+
+        // --- 1. 教师入口与密码逻辑 ---
+        DOM.btnOpenTeacher.onclick = () => {
+            DOM.teacherPwdModal.classList.remove('hidden');
+            DOM.teacherPwdInput.value = '';
+            DOM.teacherPwdInput.focus();
+        };
+
+        DOM.btnTeacherCancel.onclick = () => {
+            DOM.teacherPwdModal.classList.add('hidden');
+        };
+
+        DOM.btnTeacherLogin.onclick = () => {
+            const pwd = DOM.teacherPwdInput.value.trim();
+            if (pwd === "2020Hui%%") {
+                DOM.teacherPwdModal.classList.add('hidden');
+                DOM.teacherConsoleModal.classList.remove('hidden');
+                isHost = true;
             } else {
-                DOM.tabCreate.classList.add('hidden');
-                DOM.tabJoin.click();
+                alert("Incorrect password!");
             }
-        });
-
-        DOM.tabCreate.onclick = () => {
-            isHost = true;
-            DOM.tabCreate.className = "flex-1 py-2 font-bold rounded-xl bg-purple-600 text-white shadow";
-            DOM.tabJoin.className = "flex-1 py-2 font-bold rounded-xl bg-gray-200 text-gray-600";
-            DOM.panelCreate.classList.remove('hidden');
-            DOM.panelJoin.classList.add('hidden');
         };
 
-        DOM.tabJoin.onclick = () => {
-            isHost = false;
-            DOM.tabJoin.className = "flex-1 py-2 font-bold rounded-xl bg-purple-600 text-white shadow";
-            DOM.tabCreate.className = "flex-1 py-2 font-bold rounded-xl bg-gray-200 text-gray-600";
-            DOM.panelJoin.classList.remove('hidden');
-            DOM.panelCreate.classList.add('hidden');
+        DOM.btnCloseConsole.onclick = () => {
+            DOM.teacherConsoleModal.classList.add('hidden');
         };
 
-        DOM.btnCreateCode.onclick = () => {
+        // --- 2. 老师生成 4 位 Room Code ---
+        DOM.btnGenerateCode.onclick = async () => {
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             let code = "";
             for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            
             currentRoomCode = code;
-            DOM.displayRoomCode.innerText = currentRoomCode;
-            DOM.lobbyStatusBox.classList.remove('hidden');
+            const maxP = parseInt(document.querySelector('input[name="max-players"]:checked').value);
+
+            // 在 Firebase 建立房间数据
+            const roomRef = doc(db, 'rooms', currentRoomCode);
+            await setDoc(roomRef, {
+                code: currentRoomCode,
+                maxPlayers: maxP,
+                status: 'waiting',
+                players: []
+            });
+
+            DOM.teacherDisplayCode.innerText = currentRoomCode;
+            DOM.teacherCodeBox.classList.remove('hidden');
+
+            listenToRoom(currentRoomCode);
         };
 
+        // 一键复制给 Google Meet
+        DOM.btnCopyLink.onclick = () => {
+            const textToCopy = `Join our Snakes & Ladders game!\nLink: ${window.location.href}\nRoom Code: ${currentRoomCode}`;
+            navigator.clipboard.writeText(textToCopy);
+            alert("Copied to clipboard! Paste it into Google Meet Breakout chat.");
+        };
+
+        // --- 3. 实时监听房间变化 (多端同步) ---
         function listenToRoom(code) {
             const roomRef = doc(db, 'rooms', code);
             onSnapshot(roomRef, (snapshot) => {
                 if (!snapshot.exists()) return;
-                const roomData = snapshot.data();
+                const data = snapshot.data();
 
-                DOM.playersWaitingList.innerHTML = roomData.players.map(p =>
+                // 渲染已经加入的学生名单
+                const playersHtml = data.players.map(p =>
                     `<span class="px-3 py-1 bg-white border border-purple-200 rounded-full font-bold text-sm shadow-sm">${p.name}</span>`
                 ).join('');
 
-                const reqPlayers = roomData.maxPlayers;
-                const joinedCount = roomData.players.length;
+                DOM.teacherPlayersList.innerHTML = playersHtml;
+                DOM.studentPlayersList.innerHTML = playersHtml;
 
+                const reqPlayers = data.maxPlayers;
+                const joinedCount = data.players.length;
+
+                // 判断人数是否齐全 (亮灯激活 Start 按钮)
                 if (joinedCount >= reqPlayers) {
-                    DOM.lobbyMsg.innerText = "All players joined! Ready to Start!";
-                    DOM.lobbyMsg.className = "text-xs text-green-600 font-bold";
-                    if (isHost) {
-                        DOM.btnStartGame.disabled = false;
-                        DOM.btnStartGame.className = "w-full py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white font-cute text-2xl rounded-2xl shadow btn-3d";
-                    }
+                    DOM.teacherStatusMsg.innerText = "All players joined! Ready to Start!";
+                    DOM.teacherStatusMsg.className = "text-xs text-green-600 font-bold";
+                    
+                    // 亮灯按钮
+                    DOM.btnStartGame.disabled = false;
+                    DOM.btnStartGame.className = "w-full py-4 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-cute text-2xl rounded-2xl shadow-lg btn-3d cursor-pointer animate-bounce";
                 } else {
-                    DOM.lobbyMsg.innerText = `Waiting for players (${joinedCount}/${reqPlayers})...`;
+                    DOM.teacherStatusMsg.innerText = `Waiting for players (${joinedCount}/${reqPlayers})...`;
+                    DOM.btnStartGame.disabled = true;
+                    DOM.btnStartGame.className = "w-full py-4 bg-gray-300 text-gray-500 font-cute text-2xl rounded-2xl shadow cursor-not-allowed";
                 }
             });
         }
 
-        DOM.loginForm.onsubmit = async (e) => {
+        // --- 4. 学生提交表达加入房间 ---
+        DOM.studentForm.onsubmit = async (e) => {
             e.preventDefault();
-            const email = DOM.inputEmail.value.trim().toLowerCase();
+            const email = DOM.inputStudentEmail.value.trim().toLowerCase();
+            
+            // 必须结尾为 @moe-dl.edu.my
             if (!email.endsWith('@moe-dl.edu.my')) {
                 DOM.emailError.classList.remove('hidden');
                 return;
             }
             DOM.emailError.classList.add('hidden');
 
-            const name = DOM.inputName.value.trim();
+            const name = DOM.inputStudentName.value.trim();
+            const code = DOM.inputStudentCode.value.trim().toUpperCase();
 
-            if (isHost) {
-                if (!currentRoomCode) { alert("Generate Room Code first!"); return; }
-                const maxP = parseInt(document.querySelector('input[name="max-players"]:checked').value);
-                const roomRef = doc(db, 'rooms', currentRoomCode);
-                await setDoc(roomRef, {
-                    code: currentRoomCode,
-                    maxPlayers: maxP,
-                    status: 'waiting',
-                    players: [{ name, email, pos: 1, items: [] }]
-                });
-                listenToRoom(currentRoomCode);
-            } else {
-                const code = DOM.inputRoomCode.value.trim().toUpperCase();
-                if (code.length !== 4) { alert("Enter 4-letter room code!"); return; }
-                currentRoomCode = code;
+            const roomRef = doc(db, 'rooms', code);
+            const snap = await getDoc(roomRef);
 
-                const roomRef = doc(db, 'rooms', currentRoomCode);
-                const snap = await getDoc(roomRef);
-                if (!snap.exists()) { alert("Room Code not found!"); return; }
-
-                const data = snap.data();
-                if (data.players.length >= data.maxPlayers) { alert("Room is full!"); return; }
-
-                data.players.push({ name, email, pos: 1, items: [] });
-                await updateDoc(roomRef, { players: data.players });
-                
-                DOM.displayRoomCode.innerText = currentRoomCode;
-                DOM.lobbyStatusBox.classList.remove('hidden');
-                listenToRoom(currentRoomCode);
+            if (!snap.exists()) {
+                alert("Room Code not found! Check code with your teacher.");
+                return;
             }
+
+            const data = snap.data();
+            if (data.players.length >= data.maxPlayers) {
+                alert("Room is already full!");
+                return;
+            }
+
+            // 将学生写入 Firebase
+            data.players.push({ name, email, pos: 1 });
+            await updateDoc(roomRef, { players: data.players });
+
+            currentRoomCode = code;
+            DOM.studentDisplayCode.innerText = currentRoomCode;
+            
+            // 隐藏输入表单，显示等待界面
+            DOM.studentForm.classList.add('hidden');
+            DOM.studentWaitingBox.classList.remove('hidden');
+
+            listenToRoom(currentRoomCode);
+        };
+
+        // --- 5. 老师点击 Start 启动游戏 ---
+        DOM.btnStartGame.onclick = async () => {
+            if (!isHost || !currentRoomCode) return;
+            const roomRef = doc(db, 'rooms', currentRoomCode);
+            await updateDoc(roomRef, { status: 'playing' });
+            alert("Game started! All students enter game screen.");
         };
     </script>
 </body>
