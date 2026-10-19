@@ -28,7 +28,6 @@
             color: #333;
         }
 
-        /* 棋盘终极美化 */
         .board-container {
             position: relative;
             width: min(90vw, 70vh); height: min(90vw, 70vh);
@@ -50,7 +49,6 @@
             font-size: 1rem; font-family: 'Fredoka One', cursive; text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
             color: #fff; position: relative; box-shadow: inset -2px -2px 6px rgba(0,0,0,0.2);
         }
-        /* 绚丽的棋盘格子颜色 */
         .cell:nth-child(even) { background: linear-gradient(135deg, #0984e3, #74b9ff); }
         .cell:nth-child(odd) { background: linear-gradient(135deg, #e84393, #fd79a8); }
         .cell:nth-child(3n) { background: linear-gradient(135deg, #00b894, #55efc4); }
@@ -65,14 +63,12 @@
             z-index: 50;
         }
         
-        /* 定时器进度条 */
         .timer-bar-container { width: 100%; background-color: #eee; border-radius: 10px; overflow: hidden; height: 12px; margin-bottom: 15px; }
         .timer-bar { height: 100%; background-color: #ff4757; width: 100%; transition: width 1s linear; }
 
         .btn-3d { transition: all 0.1s; border-bottom: 6px solid rgba(0,0,0,0.2); }
         .btn-3d:active:not(:disabled) { transform: translateY(4px); border-bottom: 2px solid rgba(0,0,0,0.2); }
         
-        /* 道具卡样式 */
         .item-card { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
         .item-card:hover { transform: scale(1.05); }
     </style>
@@ -108,7 +104,7 @@
                 </button>
             </form>
 
-            <!-- 修复点：学生等候室 (Waiting Box) -->
+            <!-- 学生等候室 (Waiting Box) -->
             <div id="student-waiting-box" class="hidden mt-4 bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl text-center">
                 <div class="text-sm font-bold text-yellow-800">ROOM CODE: <span id="student-display-code" class="font-cute text-3xl text-purple-600 ml-1">----</span></div>
                 <div id="student-players-list" class="flex justify-center gap-2 my-4 flex-wrap"></div>
@@ -119,13 +115,10 @@
 
     <!-- === 2. 游戏棋盘界面 === -->
     <div id="game-screen" class="hidden container mx-auto px-2 py-3 flex flex-col gap-3 w-full h-screen items-center justify-start overflow-hidden">
-        
-        <!-- 顶部组内排行榜 -->
         <div class="glass-panel w-full max-w-3xl p-3 px-4 flex flex-col md:flex-row justify-between items-center shadow-lg text-xs font-balsamiq gap-3 border-2 border-purple-300">
             <div id="turn-indicator" class="font-cute text-xl text-purple-600 flex items-center gap-2">
                 Current Turn: <span id="current-player-name" class="text-pink-600 bg-pink-100 px-3 py-1 rounded-full border border-pink-200">---</span>
             </div>
-            <!-- 组内实时排名 -->
             <div class="flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-xl border-2 border-purple-200 flex-wrap justify-center w-full md:w-auto" id="in-room-leaderboard">
                 <span class="font-bold text-purple-800 text-sm">🏆 LIVE RANK:</span>
                 <div id="rank-badges" class="flex gap-2 flex-wrap justify-center"></div>
@@ -135,10 +128,8 @@
         <div class="w-full flex-1 flex flex-col items-center justify-center relative min-h-0">
             <div class="board-container" id="board-container">
                 <div class="board-grid" id="board-grid"></div>
-                
-                <!-- 👑 SVG 长蛇与大梯子渲染层 -->
+                <!-- SVG 长蛇与梯子层 -->
                 <svg id="sl-svg" class="absolute inset-0 w-full h-full z-[20] pointer-events-none drop-shadow-xl"></svg>
-
                 <div class="tokens-layer" id="tokens-layer"></div>
 
                 <div id="dice-overlay" class="absolute inset-0 bg-black/50 z-[40] hidden flex-col items-center justify-center backdrop-blur-sm">
@@ -150,7 +141,6 @@
             </div>
         </div>
 
-        <!-- 底部我的道具栏 -->
         <div class="glass-panel w-full max-w-3xl p-3 flex justify-between items-center border-2 border-indigo-200">
             <div class="font-bold text-indigo-800 text-sm font-balsamiq">🎒 My Items:</div>
             <div id="my-inventory" class="flex gap-2 flex-wrap">
@@ -159,7 +149,7 @@
         </div>
     </div>
 
-    <!-- === 3. 答题弹窗 (带定时器 & 道具功能) === -->
+    <!-- === 3. 答题弹窗 === -->
     <div id="quiz-modal" class="fixed inset-0 bg-black/80 z-[80] hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="glass-panel w-full max-w-lg p-6 text-center relative border-4 border-yellow-400">
             <div class="flex justify-between items-center mb-3 border-b-2 pb-2">
@@ -168,29 +158,27 @@
                     🤝 Ask Group (<span id="ask-count">5</span>/5)
                 </button>
             </div>
-
             <div class="timer-bar-container"><div id="timer-bar" class="timer-bar"></div></div>
-
             <div id="ask-msg-box" class="hidden mb-3 p-2 bg-yellow-100 border-2 border-yellow-300 text-yellow-800 text-sm rounded-xl font-bold animate-pulse">
                 🎙️ Timer Paused! Discuss with your team in Google Meet now!
             </div>
-
             <p id="quiz-question" class="text-xl font-balsamiq font-bold text-gray-800 mb-5 bg-indigo-50 p-5 rounded-2xl border-2 border-indigo-200 shadow-inner"></p>
             <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             <div id="quiz-explanation" class="hidden mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl text-left text-sm font-balsamiq text-blue-900 font-bold"></div>
         </div>
     </div>
 
-    <!-- === 4. 教师后台 (包含全班通关排行榜) === -->
+    <!-- === 4. 教师后台系统 === -->
     <div id="teacher-pwd-modal" class="fixed inset-0 bg-black/80 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="glass-panel p-6 max-w-sm w-full text-center">
+        <!-- 修复点：改为 <form> 以支持键盘回车键提交 -->
+        <form id="teacher-login-form" class="glass-panel p-6 max-w-sm w-full text-center">
             <h2 class="font-cute text-2xl mb-2 text-purple-600">Teacher Login 🔒</h2>
-            <input type="password" id="teacher-pwd-input" placeholder="Enter Password" class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl mb-4 text-center font-balsamiq focus:outline-none">
+            <input type="password" id="teacher-pwd-input" required placeholder="Enter Password" class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl mb-4 text-center font-balsamiq focus:outline-none">
             <div class="flex gap-2">
                 <button id="btn-teacher-cancel" type="button" class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl">Cancel</button>
-                <button id="btn-teacher-login" type="button" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl">Enter</button>
+                <button type="submit" class="flex-1 py-3 bg-purple-600 text-white font-bold rounded-xl">Enter</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <div id="teacher-console-modal" class="fixed inset-0 bg-black/90 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-md">
@@ -208,7 +196,6 @@
             </div>
 
             <div class="flex flex-col md:flex-row gap-6 flex-1 min-h-0">
-                <!-- 左侧：房间管理 -->
                 <div class="flex-1 flex flex-col border-r-2 border-gray-100 pr-4">
                     <div class="bg-purple-50 p-4 rounded-2xl border-2 border-purple-200 flex justify-between items-center mb-4 shadow-sm">
                         <div class="flex items-center gap-3">
@@ -221,7 +208,6 @@
                     <div class="flex-1 overflow-y-auto space-y-3" id="all-rooms-container"></div>
                 </div>
 
-                <!-- 右侧：全班通关排行榜 -->
                 <div class="w-full md:w-1/3 flex flex-col bg-yellow-50 rounded-2xl border-4 border-yellow-300 p-4">
                     <h3 class="font-cute text-2xl text-yellow-800 mb-3 text-center border-b-2 border-yellow-200 pb-2">🏆 Class Leaderboard</h3>
                     <div class="flex-1 overflow-y-auto space-y-2" id="class-leaderboard-container">
@@ -232,7 +218,7 @@
         </div>
     </div>
 
-    <!-- === Firebase 核心逻辑与音效 === -->
+    <!-- === Firebase 核心逻辑 === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -253,7 +239,7 @@
         const auth = getAuth(app);
         signInAnonymously(auth);
 
-        // --- Web Audio 音效系统 ---
+        // Web Audio 音效系统
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
         function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
@@ -293,7 +279,6 @@
         }
         document.body.addEventListener('click', initAudio, { once: true });
 
-        // --- 配置 ---
         const LADDERS = { 4: 14, 9: 31, 20: 38, 51: 67, 71: 91, 28: 84 };
         const SNAKES = { 17: 7, 54: 34, 62: 19, 87: 24, 98: 79, 64: 60 };
         const ITEM_CELLS = [15, 35, 55, 75];
@@ -321,7 +306,6 @@
             classLeaderboard: document.getElementById('class-leaderboard-container')
         };
 
-        // --- 道具系统逻辑 ---
         window.useItem = async (itemName) => {
             const roomRef = doc(db, 'rooms', myRoomCode);
             const snap = await getDoc(roomRef);
@@ -350,7 +334,6 @@
             await updateDoc(roomRef, { players: room.players });
         };
 
-        // --- SVG 渲染逻辑 ---
         function getSVGPos(cellNum) {
             const n = cellNum - 1; const r = Math.floor(n / 10);
             const c = (r % 2 === 0) ? (n % 10) : (9 - (n % 10));
@@ -374,7 +357,6 @@
             }
         }
 
-        // --- 核心登录与连接 ---
         document.getElementById('student-form').onsubmit = async (e) => {
             e.preventDefault(); initAudio();
             const email = document.getElementById('input-student-email').value.trim().toLowerCase();
@@ -395,8 +377,6 @@
             }
 
             myRoomCode = code; document.getElementById('student-display-code').innerText = myRoomCode;
-            
-            // 修复点1：仅隐藏表单内容，保留登录框背景并显示等待框
             document.getElementById('student-form').classList.add('hidden'); 
             document.getElementById('student-waiting-box').classList.remove('hidden');
             listenToStudentRoom(myRoomCode);
@@ -408,7 +388,7 @@
                 document.getElementById('student-players-list').innerHTML = room.players.map(p => `<span class="px-3 py-1 bg-white border border-purple-200 rounded-full font-bold text-sm shadow">${p.avatar} ${p.name}</span>`).join('');
 
                 if (room.status === 'playing' && DOM.gameScreen.classList.contains('hidden')) {
-                    DOM.loginScreen.classList.add('hidden'); // 这里才隐藏整个外壳
+                    DOM.loginScreen.classList.add('hidden');
                     DOM.gameScreen.classList.remove('hidden');
                     document.getElementById('game-room-code').innerText = myRoomCode;
                     initBoard(); drawSnakesAndLadders();
@@ -457,7 +437,6 @@
             } else { DOM.diceOverlay.classList.add('hidden'); }
         }
 
-        // --- 答题逻辑与骰子 ---
         DOM.btnRoll.onclick = async () => {
             initAudio(); DOM.diceOverlay.classList.add('hidden'); playSound('roll');
             let roll = Math.floor(Math.random() * 6) + 1;
@@ -552,16 +531,28 @@
             await updateDoc(doc(db, 'rooms', myRoomCode), { players: room.players, currentTurn: nextTurn });
         }
 
-        // --- 4. 教师后台系统 ---
-        document.getElementById('btn-open-teacher').onclick = () => document.getElementById('teacher-pwd-modal').classList.remove('hidden');
+        // --- 4. 教师后台系统 (修复密码登录逻辑) ---
+        document.getElementById('btn-open-teacher').onclick = () => {
+            document.getElementById('teacher-pwd-input').value = ""; // 清空上次输入
+            document.getElementById('teacher-pwd-modal').classList.remove('hidden');
+        };
+        
         document.getElementById('btn-teacher-cancel').onclick = () => document.getElementById('teacher-pwd-modal').classList.add('hidden');
-        document.getElementById('btn-teacher-login').onclick = () => {
-            if (document.getElementById('teacher-pwd-input').value === "2020Hui%%") {
+        
+        // 修复点：改用 onsubmit 并增加密码错误提示
+        document.getElementById('teacher-login-form').onsubmit = (e) => {
+            e.preventDefault(); // 阻止表单默认提交刷新网页
+            const pwd = document.getElementById('teacher-pwd-input').value.trim(); // .trim() 防止输入空格
+            
+            if (pwd === "2020Hui%%") {
                 document.getElementById('teacher-pwd-modal').classList.add('hidden');
                 document.getElementById('teacher-console-modal').classList.remove('hidden');
                 listenToAllRooms(); listenToClassLeaderboard(); 
+            } else {
+                alert("❌ Incorrect password! Please try again.");
             }
         };
+        
         document.getElementById('btn-close-console').onclick = () => document.getElementById('teacher-console-modal').classList.add('hidden');
 
         document.getElementById('btn-create-new-room').onclick = async () => {
@@ -586,7 +577,6 @@
                         <div class="flex gap-2">
                             ${room.status === 'waiting' && room.players.length >= room.maxPlayers ? `<button onclick="startSingleRoom('${room.code}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-green-600">START</button>` : ''}
                             <button onclick="copyRoomInfo('${room.code}')" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-300">Copy Link</button>
-                            <!-- 修复点2：找回删除按钮 -->
                             <button onclick="deleteRoom('${room.code}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-red-200">🗑️ Delete</button>
                         </div>
                     `;
@@ -595,7 +585,6 @@
             });
         }
         window.startSingleRoom = async (code) => { await updateDoc(doc(db, 'rooms', code), { status: 'playing' }); };
-        // 全局定义删除方法
         window.deleteRoom = async (code) => { if (confirm(`Are you sure to delete Room ${code}?`)) await deleteDoc(doc(db, 'rooms', code)); };
         
         document.getElementById('btn-start-all-ready').onclick = async () => {
@@ -603,15 +592,20 @@
         };
         window.copyRoomInfo = (code) => { navigator.clipboard.writeText(`Join Game:\nLink: ${window.location.href}\nCode: ${code}`); alert("Copied to clipboard!"); };
 
-        // 排行榜监听
         function listenToClassLeaderboard() {
-            const q = query(collection(db, 'leaderboard'), orderBy('timestamp', 'asc'), limit(10));
+            // 防止首次加载报错，去掉 orderBy 如果没有建立索引，只拉取最新
+            const q = query(collection(db, 'leaderboard'), limit(10));
             onSnapshot(q, (snapshot) => {
                 const container = DOM.classLeaderboard;
                 if(snapshot.empty) return;
                 container.innerHTML = '';
-                snapshot.forEach((docSnap, index) => {
-                    const data = docSnap.data();
+                
+                // 本地排序解决无需在 Firebase 建立复杂索引的问题
+                let results = [];
+                snapshot.forEach(docSnap => results.push(docSnap.data()));
+                results.sort((a, b) => a.timestamp - b.timestamp);
+
+                results.forEach((data, index) => {
                     let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
                     container.innerHTML += `
                         <div class="bg-white p-3 rounded-xl border-2 border-yellow-200 flex flex-col shadow-sm">
