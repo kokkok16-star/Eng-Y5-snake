@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Quiz Snakes & Ladders - Teacher Dashboard Edition</title>
+    <title>English Quiz Snakes & Ladders - Pro</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800;900&family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- 顶部右上角：教师管理后台入口 -->
+    <!-- 顶部右上角：教师控制台入口 -->
     <button id="btn-open-teacher" type="button" class="fixed top-4 right-4 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white rounded-full font-bold shadow-lg z-[100] border-2 border-white cursor-pointer font-balsamiq flex items-center gap-2 text-sm">
         <span>🔒</span> Teacher Dashboard
     </button>
@@ -112,7 +112,7 @@
         </div>
     </div>
 
-    <!-- === 2. 真正棋盘游戏界面 (游戏启动后显示) === -->
+    <!-- === 2. 真正棋盘游戏界面 === -->
     <div id="game-screen" class="hidden container mx-auto px-2 py-3 flex flex-col gap-2 w-full h-screen items-center justify-start overflow-hidden">
         <div class="glass-panel w-full max-w-2xl p-3 px-4 flex justify-between items-center shadow text-xs md:text-sm font-balsamiq">
             <div id="turn-indicator" class="font-cute text-xl text-purple-600">
@@ -128,7 +128,6 @@
                 <div class="board-grid" id="board-grid"></div>
                 <div class="tokens-layer" id="tokens-layer"></div>
 
-                <!-- 骰子遮罩层 -->
                 <div id="dice-overlay" class="absolute inset-0 bg-black/60 z-[40] hidden flex-col items-center justify-center backdrop-blur-sm">
                     <h3 class="text-white font-cute text-3xl mb-4 drop-shadow">Your Turn to Roll!</h3>
                     <button id="btn-roll" class="px-10 py-4 bg-green-500 hover:bg-green-600 text-white font-cute text-3xl rounded-2xl shadow-lg btn-3d">
@@ -139,7 +138,7 @@
         </div>
     </div>
 
-    <!-- === 3. 教师密码输入弹窗 === -->
+    <!-- === 3. 教师密码弹窗 === -->
     <div id="teacher-pwd-modal" class="fixed inset-0 bg-black/60 z-[110] hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="glass-panel p-6 max-w-sm w-full text-center">
             <h2 class="font-cute text-2xl mb-2 text-purple-600">Teacher Login 🔒</h2>
@@ -151,7 +150,7 @@
         </div>
     </div>
 
-    <!-- === 4. 教师后台总控制台 (监控全班多房间) === -->
+    <!-- === 4. 教师总控制台（带删除房间功能） === -->
     <div id="teacher-console-modal" class="fixed inset-0 bg-black/80 z-[120] hidden flex items-center justify-center p-4 backdrop-blur-md">
         <div class="glass-panel p-6 md:p-8 w-full max-w-3xl h-[85vh] flex flex-col relative bg-white/95">
             <button id="btn-close-console" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-2xl">✕</button>
@@ -166,7 +165,7 @@
                 </button>
             </div>
 
-            <!-- 创建新房间控制器 -->
+            <!-- 新增房间控制器 -->
             <div class="bg-purple-50 p-4 rounded-2xl border-2 border-purple-100 flex flex-wrap justify-between items-center gap-3 mb-4">
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-bold text-gray-700">Players/Room:</span>
@@ -178,18 +177,18 @@
                 </button>
             </div>
 
-            <!-- 所有房间实时看板 -->
+            <!-- 全班房间卡片列表 -->
             <div class="flex-1 overflow-y-auto space-y-3 pr-1" id="all-rooms-container">
                 <div class="text-center text-gray-400 font-balsamiq py-8">No active rooms yet. Click "+ Create New Room" above.</div>
             </div>
         </div>
     </div>
 
-    <!-- === Firebase 核心与联机逻辑 === -->
+    <!-- === Firebase 核心逻辑 === -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDHAeGz9S33RcsKUwdHplYWI6sWrEvbZGw",
@@ -241,7 +240,7 @@
             btnRoll: document.getElementById('btn-roll')
         };
 
-        // --- 1. 教师后台入口逻辑 ---
+        // --- 1. 教师后台登录逻辑 ---
         DOM.btnOpenTeacher.onclick = () => DOM.teacherPwdModal.classList.remove('hidden');
         DOM.btnTeacherCancel.onclick = () => DOM.teacherPwdModal.classList.add('hidden');
         
@@ -250,7 +249,7 @@
                 DOM.teacherPwdModal.classList.add('hidden');
                 DOM.teacherConsoleModal.classList.remove('hidden');
                 isTeacher = true;
-                listenToAllRooms(); // 开启监听全班所有房间
+                listenToAllRooms();
             } else {
                 alert("Incorrect password!");
             }
@@ -258,7 +257,7 @@
 
         DOM.btnCloseConsole.onclick = () => DOM.teacherConsoleModal.classList.add('hidden');
 
-        // 老师点新建房间
+        // 老师创建新房间
         DOM.btnCreateNewRoom.onclick = async () => {
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
             let code = "";
@@ -275,7 +274,7 @@
             });
         };
 
-        // 老师点击批量开启所有满员房间
+        // 批量启动所有就绪房间
         DOM.btnStartAllReady.onclick = async () => {
             for (let code in allRoomsData) {
                 const room = allRoomsData[code];
@@ -285,11 +284,16 @@
             }
         };
 
-        // --- 2. 教师后台：实时监听并渲染全班所有房间列表 ---
+        // --- 2. 教师后台渲染：加入删除房间功能 ---
         function listenToAllRooms() {
             onSnapshot(collection(db, 'rooms'), (snapshot) => {
                 DOM.allRoomsContainer.innerHTML = '';
                 allRoomsData = {};
+
+                if (snapshot.empty) {
+                    DOM.allRoomsContainer.innerHTML = '<div class="text-center text-gray-400 font-balsamiq py-8">No active rooms yet. Click "+ Create New Room" above.</div>';
+                    return;
+                }
 
                 snapshot.forEach(docSnap => {
                     const room = docSnap.data();
@@ -315,12 +319,14 @@
                             </div>
                             <div class="flex flex-wrap gap-1">${playersBadge || '<span class="text-xs text-gray-400">No students joined yet</span>'}</div>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex items-center gap-2">
                             <button onclick="copyRoomInfo('${room.code}')" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl">Copy Link</button>
                             ${room.status === 'waiting' ? 
-                                `<button onclick="startSingleRoom('${room.code}')" ${!isFull ? 'disabled' : ''} class="px-4 py-1.5 ${isFull ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-200 text-gray-400'} font-cute text-sm rounded-xl shadow">START</button>` 
-                                : '<span class="text-xs font-bold text-green-600 self-center">LIVE</span>'
+                                `<button onclick="startSingleRoom('${room.code}')" ${!isFull ? 'disabled' : ''} class="px-4 py-1.5 ${isFull ? 'bg-green-500 hover:bg-green-600 text-white cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'} font-cute text-sm rounded-xl shadow">START</button>` 
+                                : '<span class="text-xs font-bold text-green-600 px-2">LIVE</span>'
                             }
+                            <!-- ★ 删除房间按钮 ★ -->
+                            <button onclick="deleteRoom('${room.code}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 font-bold text-xs rounded-xl transition-colors">🗑️ Delete</button>
                         </div>
                     `;
                     DOM.allRoomsContainer.appendChild(card);
@@ -337,7 +343,14 @@
             await updateDoc(doc(db, 'rooms', code), { status: 'playing' });
         };
 
-        // --- 3. 学生提交加入房间 & 实时跳转棋盘 ---
+        // 删除房间函数
+        window.deleteRoom = async (code) => {
+            if (confirm(`Are you sure you want to delete Room ${code}?`)) {
+                await deleteDoc(doc(db, 'rooms', code));
+            }
+        };
+
+        // --- 3. 学生提交加入房间 & 支持同名掉线重连 ---
         DOM.studentForm.onsubmit = async (e) => {
             e.preventDefault();
             const email = DOM.inputStudentEmail.value.trim().toLowerCase();
@@ -353,15 +366,31 @@
             const roomRef = doc(db, 'rooms', code);
             const snap = await getDoc(roomRef);
 
-            if (!snap.exists()) { alert("Room Code not found!"); return; }
+            if (!snap.exists()) { 
+                alert("Room Code not found!"); 
+                return; 
+            }
 
             const data = snap.data();
-            if (data.players.length >= data.maxPlayers) { alert("Room is full!"); return; }
+            
+            // 检查该学生是否属于掉线重连（已在名单中）
+            const existingIndex = data.players.findIndex(p => p.email === email);
 
-            myPlayerIndex = data.players.length;
-            const avatar = avatars[myPlayerIndex % avatars.length];
-            data.players.push({ name, email, avatar, pos: 1 });
-            await updateDoc(roomRef, { players: data.players });
+            if (existingIndex !== -1) {
+                // ★ 掉线重连模式：直接允许进入 ★
+                myPlayerIndex = existingIndex;
+            } else {
+                // 新加入玩家：检查房间人数是否已满
+                if (data.players.length >= data.maxPlayers) { 
+                    alert("Room is already full!"); 
+                    return; 
+                }
+
+                myPlayerIndex = data.players.length;
+                const avatar = avatars[myPlayerIndex % avatars.length];
+                data.players.push({ name, email, avatar, pos: 1 });
+                await updateDoc(roomRef, { players: data.players });
+            }
 
             myRoomCode = code;
             DOM.studentDisplayCode.innerText = myRoomCode;
@@ -371,19 +400,18 @@
             listenToStudentRoom(myRoomCode);
         };
 
-        // 学生端实时监听 (解决等候不自动进入的 Bug)
+        // 学生端实时监听
         function listenToStudentRoom(code) {
             const roomRef = doc(db, 'rooms', code);
             onSnapshot(roomRef, (snapshot) => {
                 if (!snapshot.exists()) return;
                 const room = snapshot.data();
 
-                // 渲染等待中的同组名单
                 DOM.studentPlayersList.innerHTML = room.players.map(p =>
                     `<span class="px-3 py-1 bg-white border border-purple-200 rounded-full font-bold text-sm shadow-sm">${p.avatar} ${p.name}</span>`
                 ).join('');
 
-                // ★★★ 核心修复：老师点击 Start 后，监听到 status === 'playing'，自动瞬间进入游戏棋盘！
+                // 一旦房间变成 playing，瞬间自动进入棋盘
                 if (room.status === 'playing') {
                     DOM.loginScreen.classList.add('hidden');
                     DOM.gameScreen.classList.remove('hidden');
@@ -394,12 +422,11 @@
             });
         }
 
-        // 渲染棋盘与移动棋子
+        // 绘制棋盘与同步玩家
         function renderGameState(room) {
             const currentP = room.players[room.currentTurn];
             DOM.currentPlayerName.innerText = `${currentP.avatar} ${currentP.name}`;
 
-            // 绘制全组棋子
             DOM.tokensLayer.innerHTML = '';
             room.players.forEach((p, idx) => {
                 const coords = getCellCoords(p.pos || 1);
@@ -411,7 +438,6 @@
                 DOM.tokensLayer.appendChild(tok);
             });
 
-            // 是否轮到我掷骰子
             if (room.currentTurn === myPlayerIndex) {
                 DOM.diceOverlay.classList.remove('hidden');
                 DOM.diceOverlay.classList.add('flex');
@@ -444,7 +470,7 @@
             }
         }
 
-        // 掷骰子与数据更新
+        // 掷骰子事件
         DOM.btnRoll.onclick = async () => {
             DOM.diceOverlay.classList.add('hidden');
             const roll = Math.floor(Math.random() * 6) + 1;
