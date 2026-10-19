@@ -108,10 +108,11 @@
                 </button>
             </form>
 
+            <!-- 修复点：学生等候室 (Waiting Box) -->
             <div id="student-waiting-box" class="hidden mt-4 bg-yellow-50 border-2 border-yellow-200 p-4 rounded-2xl text-center">
-                <div class="text-sm font-bold text-yellow-800">ROOM CODE: <span id="student-display-code" class="font-cute text-2xl text-purple-600 ml-1">----</span></div>
-                <div id="student-players-list" class="flex justify-center gap-2 my-3 flex-wrap"></div>
-                <div class="text-xs text-yellow-700 font-bold animate-pulse">Waiting for teacher to start...</div>
+                <div class="text-sm font-bold text-yellow-800">ROOM CODE: <span id="student-display-code" class="font-cute text-3xl text-purple-600 ml-1">----</span></div>
+                <div id="student-players-list" class="flex justify-center gap-2 my-4 flex-wrap"></div>
+                <div class="text-sm text-yellow-700 font-bold animate-pulse mt-2">⏳ Waiting for teacher to start...</div>
             </div>
         </div>
     </div>
@@ -220,7 +221,7 @@
                     <div class="flex-1 overflow-y-auto space-y-3" id="all-rooms-container"></div>
                 </div>
 
-                <!-- 右侧：全班通关排行榜 (Class Leaderboard) -->
+                <!-- 右侧：全班通关排行榜 -->
                 <div class="w-full md:w-1/3 flex flex-col bg-yellow-50 rounded-2xl border-4 border-yellow-300 p-4">
                     <h3 class="font-cute text-2xl text-yellow-800 mb-3 text-center border-b-2 border-yellow-200 pb-2">🏆 Class Leaderboard</h3>
                     <div class="flex-1 overflow-y-auto space-y-2" id="class-leaderboard-container">
@@ -290,8 +291,6 @@
                 osc.start(now); osc.stop(now + 0.3);
             }
         }
-
-        // 点击页面任意地方激活音频
         document.body.addEventListener('click', initAudio, { once: true });
 
         // --- 配置 ---
@@ -326,11 +325,10 @@
         window.useItem = async (itemName) => {
             const roomRef = doc(db, 'rooms', myRoomCode);
             const snap = await getDoc(roomRef);
-            let room = snap.data();
-            let me = room.players[myPlayerIndex];
+            let room = snap.data(); let me = room.players[myPlayerIndex];
             
             if(!me.items.includes(itemName)) return;
-            me.items.splice(me.items.indexOf(itemName), 1); // 消耗道具
+            me.items.splice(me.items.indexOf(itemName), 1); 
             playSound('item');
 
             if(itemName === 'Swap 🔄') {
@@ -345,41 +343,38 @@
             } else if(itemName === 'Double 🎲') {
                 currentDoubleDice = true; alert("Double Dice activated for your next roll!");
             } else if(itemName === '50/50 💡') {
-                alert("50/50 applied to your current/next question!");
+                alert("50/50 applied! 2 wrong answers removed.");
                 const wrongBtns = document.querySelectorAll('.wrong-opt');
                 if(wrongBtns.length >= 2) { wrongBtns[0].style.visibility = 'hidden'; wrongBtns[1].style.visibility = 'hidden'; }
             }
             await updateDoc(roomRef, { players: room.players });
         };
 
-        // --- 1. 动态生成霸气的 SVG 长蛇和梯子 ---
+        // --- SVG 渲染逻辑 ---
         function getSVGPos(cellNum) {
             const n = cellNum - 1; const r = Math.floor(n / 10);
             const c = (r % 2 === 0) ? (n % 10) : (9 - (n % 10));
-            return { x: c * 10 + 5, y: (9 - r) * 10 + 5 }; // 返回中心点百分比
+            return { x: c * 10 + 5, y: (9 - r) * 10 + 5 }; 
         }
 
         function drawSnakesAndLadders() {
             DOM.slSvg.innerHTML = '';
-            // 画梯子 (粗木纹线条)
             for(let start in LADDERS) {
                 let p1 = getSVGPos(start); let p2 = getSVGPos(LADDERS[start]);
                 DOM.slSvg.innerHTML += `<line x1="${p1.x}%" y1="${p1.y}%" x2="${p2.x}%" y2="${p2.y}%" stroke="#8B4513" stroke-width="18" stroke-dasharray="10, 8" opacity="0.9" stroke-linecap="square" />`;
                 DOM.slSvg.innerHTML += `<line x1="${p1.x - 1.5}%" y1="${p1.y}%" x2="${p2.x - 1.5}%" y2="${p2.y}%" stroke="#5C4033" stroke-width="4" opacity="0.9" />`;
                 DOM.slSvg.innerHTML += `<line x1="${p1.x + 1.5}%" y1="${p1.y}%" x2="${p2.x + 1.5}%" y2="${p2.y}%" stroke="#5C4033" stroke-width="4" opacity="0.9" />`;
             }
-            // 画巨蛇 (绿色波浪曲线)
             for(let head in SNAKES) {
                 let p1 = getSVGPos(head); let p2 = getSVGPos(SNAKES[head]);
                 let midX = (p1.x + p2.x) / 2 + 15; let midY = (p1.y + p2.y) / 2 - 10;
                 DOM.slSvg.innerHTML += `<path d="M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}" fill="none" stroke="#27ae60" stroke-width="16" stroke-linecap="round" opacity="0.9" />`;
                 DOM.slSvg.innerHTML += `<path d="M ${p1.x} ${p1.y} Q ${midX} ${midY} ${p2.x} ${p2.y}" fill="none" stroke="#2ecc71" stroke-width="8" stroke-linecap="round" stroke-dasharray="4, 6" opacity="0.8" />`;
-                // 蛇头和眼睛
                 DOM.slSvg.innerHTML += `<circle cx="${p1.x}%" cy="${p1.y}%" r="2.5%" fill="#c0392b" /><circle cx="${p1.x-0.8}%" cy="${p1.y-0.8}%" r="0.5%" fill="#fff" /><circle cx="${p1.x+0.8}%" cy="${p1.y-0.8}%" r="0.5%" fill="#fff" />`;
             }
         }
 
-        // --- 2. 核心逻辑与实时渲染 ---
+        // --- 核心登录与连接 ---
         document.getElementById('student-form').onsubmit = async (e) => {
             e.preventDefault(); initAudio();
             const email = document.getElementById('input-student-email').value.trim().toLowerCase();
@@ -400,7 +395,10 @@
             }
 
             myRoomCode = code; document.getElementById('student-display-code').innerText = myRoomCode;
-            DOM.loginScreen.classList.add('hidden'); document.getElementById('student-waiting-box').classList.remove('hidden');
+            
+            // 修复点1：仅隐藏表单内容，保留登录框背景并显示等待框
+            document.getElementById('student-form').classList.add('hidden'); 
+            document.getElementById('student-waiting-box').classList.remove('hidden');
             listenToStudentRoom(myRoomCode);
         };
 
@@ -410,7 +408,8 @@
                 document.getElementById('student-players-list').innerHTML = room.players.map(p => `<span class="px-3 py-1 bg-white border border-purple-200 rounded-full font-bold text-sm shadow">${p.avatar} ${p.name}</span>`).join('');
 
                 if (room.status === 'playing' && DOM.gameScreen.classList.contains('hidden')) {
-                    DOM.loginScreen.classList.add('hidden'); DOM.gameScreen.classList.remove('hidden');
+                    DOM.loginScreen.classList.add('hidden'); // 这里才隐藏整个外壳
+                    DOM.gameScreen.classList.remove('hidden');
                     document.getElementById('game-room-code').innerText = myRoomCode;
                     initBoard(); drawSnakesAndLadders();
                 }
@@ -435,7 +434,6 @@
             const currentP = room.players[room.currentTurn];
             document.getElementById('current-player-name').innerText = `${currentP.avatar} ${currentP.name}`;
 
-            // 组内排行榜
             const sorted = [...room.players].sort((a, b) => b.pos - a.pos);
             DOM.rankBadges.innerHTML = sorted.map((p, idx) => `
                 <span class="px-2.5 py-1 ${idx===0 ? 'bg-yellow-300 text-yellow-900 border border-yellow-500 shadow-sm' : 'bg-white text-gray-700'} rounded-lg font-bold text-xs">
@@ -443,14 +441,12 @@
                 </span>
             `).join('');
 
-            // 渲染棋子
             DOM.tokensLayer.innerHTML = '';
             room.players.forEach((p, idx) => {
                 const pos = getSVGPos(p.pos || 1);
                 DOM.tokensLayer.innerHTML += `<div class="token" style="left: calc(${pos.x}% + ${(idx-1.5)*2.5}%); top: calc(${pos.y}% + ${(idx-1.5)*2.5}%);">${p.avatar}</div>`;
             });
 
-            // 渲染我的道具栏
             let myItems = room.players[myPlayerIndex].items || [];
             DOM.myInventory.innerHTML = myItems.length > 0 
                 ? myItems.map(i => `<button class="item-card" onclick="useItem('${i}')">${i}</button>`).join('')
@@ -461,17 +457,15 @@
             } else { DOM.diceOverlay.classList.add('hidden'); }
         }
 
-        // --- 3. 游戏事件：掷骰子与答题 ---
+        // --- 答题逻辑与骰子 ---
         DOM.btnRoll.onclick = async () => {
             initAudio(); DOM.diceOverlay.classList.add('hidden'); playSound('roll');
-            
             let roll = Math.floor(Math.random() * 6) + 1;
             if(currentDoubleDice) { roll *= 2; currentDoubleDice = false; alert(`Double Dice used! You rolled ${roll}!`); }
 
             const roomRef = doc(db, 'rooms', myRoomCode); const snap = await getDoc(roomRef);
             let room = snap.data(); let targetPos = (room.players[myPlayerIndex].pos || 1) + roll;
             if (targetPos > 100) targetPos = 100;
-
             triggerQuiz(targetPos, room);
         };
 
@@ -480,19 +474,17 @@
             DOM.quizQuestion.innerText = q.q; DOM.quizExplanation.classList.add('hidden');
             DOM.quizOptions.innerHTML = ''; DOM.askMsgBox.classList.add('hidden');
             
-            // 定时器逻辑
             timeLeft = 30; DOM.timerBar.style.width = '100%';
             clearInterval(quizTimer);
             quizTimer = setInterval(() => {
                 timeLeft--; DOM.timerBar.style.width = `${(timeLeft/30)*100}%`;
-                if(timeLeft <= 0) { clearInterval(quizTimer); handleAnswer(false, targetPos, room, q); } // 超时算错
+                if(timeLeft <= 0) { clearInterval(quizTimer); handleAnswer(false, targetPos, room, q); } 
             }, 1000);
 
-            // 求助机制：暂停定时器
             DOM.btnAskTeammate.onclick = () => {
                 if (askCount > 0) {
                     askCount--; DOM.askCountElem.innerText = askCount;
-                    clearInterval(quizTimer); // 暂停倒数
+                    clearInterval(quizTimer); 
                     DOM.askMsgBox.classList.remove('hidden');
                     if (askCount === 0) DOM.btnAskTeammate.disabled = true;
                 }
@@ -516,19 +508,17 @@
                 playSound('correct');
                 if(btnClicked) btnClicked.className = "py-4 px-5 bg-green-500 text-white font-bold rounded-2xl border text-left shadow-lg";
                 
-                // 处理道具格
                 if(ITEM_CELLS.includes(targetPos)) {
                     playSound('item');
                     let randomItem = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)];
                     if(!me.items) me.items = []; me.items.push(randomItem);
-                    alert(`🎁 You landed on a Gift Cell and got: ${randomItem}!`);
+                    alert(`🎁 Got a Gift: ${randomItem}!`);
                 }
 
-                // 处理蛇梯
                 if (LADDERS[targetPos]) { playSound('ladder'); alert(`🪜 Climbed to ${LADDERS[targetPos]}!`); targetPos = LADDERS[targetPos]; } 
                 else if (SNAKES[targetPos]) {
                     if(me.hasShield) {
-                        playSound('item'); alert("🛡️ Shield protected you from the Snake!"); me.hasShield = false;
+                        playSound('item'); alert("🛡️ Shield protected you!"); me.hasShield = false;
                     } else {
                         playSound('snake'); alert(`🐍 Slid down to ${SNAKES[targetPos]}!`); targetPos = SNAKES[targetPos];
                     }
@@ -541,8 +531,8 @@
                 DOM.quizExplanation.innerText = `❌ ${timeLeft <= 0 ? "Time's up!" : "Wrong!"} ${q.exp}`;
                 DOM.quizExplanation.classList.remove('hidden');
                 
-                if(me.hasShield) { alert("🛡️ Shield saved you from penalty! You move anyway!"); me.hasShield = false; setTimeout(() => finishTurn(targetPos, room), 2500); }
-                else { setTimeout(() => finishTurn(me.pos || 1, room), 2500); } // 答错且无盾，留原位
+                if(me.hasShield) { alert("🛡️ Shield saved you!"); me.hasShield = false; setTimeout(() => finishTurn(targetPos, room), 2500); }
+                else { setTimeout(() => finishTurn(me.pos || 1, room), 2500); } 
             }
         }
 
@@ -550,15 +540,11 @@
             DOM.quizModal.classList.add('hidden');
             room.players[myPlayerIndex].pos = finalPos;
 
-            // 检查是否有人到达终点通关 100
             if (finalPos >= 100) {
                 alert("🎉 YOU WON! Your team finished the game!");
-                // 写入全班排行榜集合
                 await addDoc(collection(db, 'leaderboard'), {
-                    roomCode: myRoomCode,
-                    winner: room.players[myPlayerIndex].name,
-                    team: room.players.map(p => p.name).join(', '),
-                    timestamp: Date.now()
+                    roomCode: myRoomCode, winner: room.players[myPlayerIndex].name,
+                    team: room.players.map(p => p.name).join(', '), timestamp: Date.now()
                 });
             }
 
@@ -566,14 +552,14 @@
             await updateDoc(doc(db, 'rooms', myRoomCode), { players: room.players, currentTurn: nextTurn });
         }
 
-        // --- 4. 教师端后台控制系统 ---
+        // --- 4. 教师后台系统 ---
         document.getElementById('btn-open-teacher').onclick = () => document.getElementById('teacher-pwd-modal').classList.remove('hidden');
         document.getElementById('btn-teacher-cancel').onclick = () => document.getElementById('teacher-pwd-modal').classList.add('hidden');
         document.getElementById('btn-teacher-login').onclick = () => {
             if (document.getElementById('teacher-pwd-input').value === "2020Hui%%") {
                 document.getElementById('teacher-pwd-modal').classList.add('hidden');
                 document.getElementById('teacher-console-modal').classList.remove('hidden');
-                listenToAllRooms(); listenToClassLeaderboard(); // 开启排行榜监听
+                listenToAllRooms(); listenToClassLeaderboard(); 
             }
         };
         document.getElementById('btn-close-console').onclick = () => document.getElementById('teacher-console-modal').classList.add('hidden');
@@ -592,14 +578,16 @@
                 snapshot.forEach(docSnap => {
                     const room = docSnap.data(); allRoomsData[room.code] = room;
                     const card = document.createElement('div');
-                    card.className = "p-4 bg-white rounded-2xl border-2 border-gray-100 flex justify-between items-center shadow-sm";
+                    card.className = "p-4 bg-white rounded-2xl border-2 border-gray-100 flex flex-col md:flex-row justify-between items-center shadow-sm gap-2";
                     card.innerHTML = `
-                        <div><strong class="text-xl text-purple-600 font-cute">Room ${room.code}</strong> 
+                        <div class="text-left w-full"><strong class="text-xl text-purple-600 font-cute">Room ${room.code}</strong> 
                         <span class="text-xs bg-gray-100 px-2 py-1 rounded ml-2">${room.status} (${room.players.length}/${room.maxPlayers})</span>
                         <div class="text-xs text-gray-500 mt-1">${room.players.map(p=>p.name).join(', ') || 'No players yet'}</div></div>
                         <div class="flex gap-2">
-                            ${room.status === 'waiting' && room.players.length >= room.maxPlayers ? `<button onclick="startSingleRoom('${room.code}')" class="bg-green-500 text-white px-3 py-1 rounded-lg text-sm font-bold shadow hover:bg-green-600">START</button>` : ''}
-                            <button onclick="copyRoomInfo('${room.code}')" class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm font-bold hover:bg-gray-300">Copy Link</button>
+                            ${room.status === 'waiting' && room.players.length >= room.maxPlayers ? `<button onclick="startSingleRoom('${room.code}')" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-green-600">START</button>` : ''}
+                            <button onclick="copyRoomInfo('${room.code}')" class="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-gray-300">Copy Link</button>
+                            <!-- 修复点2：找回删除按钮 -->
+                            <button onclick="deleteRoom('${room.code}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-red-200">🗑️ Delete</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -607,12 +595,15 @@
             });
         }
         window.startSingleRoom = async (code) => { await updateDoc(doc(db, 'rooms', code), { status: 'playing' }); };
+        // 全局定义删除方法
+        window.deleteRoom = async (code) => { if (confirm(`Are you sure to delete Room ${code}?`)) await deleteDoc(doc(db, 'rooms', code)); };
+        
         document.getElementById('btn-start-all-ready').onclick = async () => {
             for (let c in allRoomsData) if (allRoomsData[c].status === 'waiting' && allRoomsData[c].players.length >= allRoomsData[c].maxPlayers) await updateDoc(doc(db, 'rooms', c), { status: 'playing' });
         };
         window.copyRoomInfo = (code) => { navigator.clipboard.writeText(`Join Game:\nLink: ${window.location.href}\nCode: ${code}`); alert("Copied to clipboard!"); };
 
-        // 监听全班通关排行榜
+        // 排行榜监听
         function listenToClassLeaderboard() {
             const q = query(collection(db, 'leaderboard'), orderBy('timestamp', 'asc'), limit(10));
             onSnapshot(q, (snapshot) => {
